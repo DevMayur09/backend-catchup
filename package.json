@@ -1,0 +1,22 @@
+{
+  "name": "backend-catchup",
+  "version": "1.0.0",
+  "description": "It is backend service for catchUp project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [
+    "javascript",
+    "tinder",
+    "meetup",
+    "catchup",
+    "nodejs"
+  ],
+  "author": "Mayur Thool",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
