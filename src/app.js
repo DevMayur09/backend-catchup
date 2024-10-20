@@ -3,12 +3,20 @@ const app = express();
 
 const PORT = 3000;
 
-app.use("/", (req, res) => {
-  res.send("Server is saying Hello !....");
+app.get("/user", (req, res) => {
+  res.send({ firstName: "Mayur", lastName: "Thool" });
 });
 
-app.use("test", (req, res) => {
-  res.send("Server running with nodemon !!");
+app.post("/user", (req, res) => {
+  res.send("POST user requests response");
+});
+
+app.put("/user", (req, res) => {
+  res.send("PUT user requests response");
+});
+
+app.delete("/user", (req, res) => {
+  res.send("DELETE user requests response");
 });
 
 app.listen(PORT, (req, res) => {
