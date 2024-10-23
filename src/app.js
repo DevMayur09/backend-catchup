@@ -1,33 +1,26 @@
 const express = require("express");
+const connectDB = require("./config/database.js");
+const User = require("./models/user.js");
 const app = express();
-
 const { adminAuth, userAuth } = require("./middlewares/auth");
 
 const PORT = 3000;
+app.use(express.json());
 
-app.use("/admin", adminAuth);
-app.use("/user", userAuth);
+app.post("/signup", async (req, res) => {
+  const user = new User(req.body);
 
-app.get("/user", (req, res) => {
-  res.send({ firstName: "Mayur", lastName: "Thool" });
+  await user.save();
+  res.send("User Added Successfully !!!");
 });
 
-app.post("/user", (req, res) => {
-  res.send("POST user requests response");
-});
-
-app.put("/user", (req, res) => {
-  res.send("PUT user requests response");
-});
-
-app.delete("/user", (req, res) => {
-  res.send("DELETE user requests response");
-});
-
-app.use("/", (err, req, res, next) => {
-  res.send("Something went wrong, contact support");
-});
-
-app.listen(PORT, (req, res) => {
-  console.log("Hello ! Server is up and running on PORT :", PORT);
-});
+connectDB()
+  .then(() => {
+    console.log("Database Connections established...");
+    app.listen(PORT, (req, res) => {
+      console.log("Hello ! Server is up and running on PORT :", PORT);
+    });
+  })
+  .catch((err) => {
+    console.log("Database cannot  established", err);
+  });
