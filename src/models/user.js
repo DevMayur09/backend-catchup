@@ -36,11 +36,11 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      validate: {
-        validator: function (value) {
+      validate: (value) => {
+        {
           if (["male", "female", "other"].includes(value)) return true;
-        },
-        message: "Invalid gender.",
+          else throw new Error("Invalid gender type");
+        }
       },
     },
     hobbies: { type: [String] },
