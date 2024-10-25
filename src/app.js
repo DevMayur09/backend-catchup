@@ -1,19 +1,85 @@
 const express = require("express");
 const connectDB = require("./config/database.js");
+const cookieParser = require("cookie-parser");
 const User = require("./models/user.js");
 const app = express();
-const { adminAuth, userAuth } = require("./middlewares/auth");
 const user = require("./models/user.js");
+const bcrypt = require("bcrypt");
+const { adminAuth, userAuth } = require("./middlewares/auth");
+const { validateSignupData, throwError } = require("./utils/validation.js");
+const jwt = require("jsonwebtoken");
+
+app.use(express.json());
+app.use(cookieParser());
 
 const PORT = 3000;
-app.use(express.json());
 
 // POST /signup for user creation
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
+  try {
+    validateSignupData(req);
 
-  await user.save();
-  res.send("User Added Successfully !!!");
+    const { firstName, lastName, emailId, password } = req.body;
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
+
+    await user.save();
+    res.send("User Added Successfully !!!");
+  } catch (error) {
+    res.status(400).send("Error : " + error);
+  }
+});
+
+// POST /login
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    const user = await User.findOne({ emailId: emailId });
+
+    if (!user) throwError("Invalid credentials");
+
+    const isPassowordValid = await bcrypt.compare(password, user.password);
+
+    if (isPassowordValid) {
+      const token = await jwt.sign({ _id: user._id }, "CatchUpSecretJwtKey");
+      res.cookie("token", token);
+      res.send("login Successful.");
+    } else {
+      throwError("Invalid credentials pass");
+    }
+  } catch (error) {
+    res.status(400).send("Error: " + error);
+  }
+});
+
+// GET /profile
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+
+    const { token } = cookies;
+    if (!token) throw new Error("Invalid token");
+
+    const decodedMessage = await jwt.verify(token, "CatchUpSecretJwtKey");
+    const { _id } = decodedMessage;
+
+    const user = await User.findById(_id);
+    if (!user) throw new Error("User not found");
+
+    const userName = user.firstName;
+    console.log(`Hello ${userName}`);
+    res.send("Get Profile successfully");
+  } catch (error) {
+    res.status(400).send(`Error: ${error.message}`);
+  }
 });
 
 // GET /feed for gettings feeds
@@ -65,7 +131,6 @@ app.patch("/user", async (req, res) => {
 
 connectDB()
   .then(() => {
-    console.log("Database Connections established...");
     app.listen(PORT, (req, res) => {
       console.log("Hello ! Server is up and running on PORT :", PORT);
     });
