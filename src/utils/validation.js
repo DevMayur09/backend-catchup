@@ -23,6 +23,21 @@ const validateEditProfileData = (req) => {
   return isValidData;
 };
 
+const validatePasswordResetData = (req) => {
+  const { newPassword, confirmPassword } = req.body;
+
+  if (!newPassword) {
+    throwError("new Password is required");
+  }
+
+  if (!validator.isStrongPassword(newPassword)) {
+    throwError("Please enter strong password");
+  }
+
+  if (newPassword !== confirmPassword)
+    throwError("new password and confirm password does not match");
+};
+
 const throwError = (errMsg) => {
   throw new Error(errMsg);
 };
@@ -30,5 +45,6 @@ const throwError = (errMsg) => {
 module.exports = {
   validateSignupData,
   validateEditProfileData,
+  validatePasswordResetData,
   throwError,
 };
