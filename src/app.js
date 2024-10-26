@@ -5,7 +5,7 @@ const User = require("./models/user.js");
 const app = express();
 const user = require("./models/user.js");
 const bcrypt = require("bcrypt");
-const { adminAuth, userAuth } = require("./middlewares/auth");
+const { userAuth } = require("./middlewares/auth");
 const { validateSignupData, throwError } = require("./utils/validation.js");
 const jwt = require("jsonwebtoken");
 
@@ -49,8 +49,10 @@ app.post("/login", async (req, res) => {
     const isPassowordValid = await bcrypt.compare(password, user.password);
 
     if (isPassowordValid) {
-      const token = await jwt.sign({ _id: user._id }, "CatchUpSecretJwtKey");
-      res.cookie("token", token);
+      const token = await jwt.sign({ _id: user._id }, "CatchUpSecretJwtKey", { expiresIn: "1d" });
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 360000),
+      });
       res.send("login Successful.");
     } else {
       throwError("Invalid credentials pass");
@@ -61,19 +63,9 @@ app.post("/login", async (req, res) => {
 });
 
 // GET /profile
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const cookies = req.cookies;
-
-    const { token } = cookies;
-    if (!token) throw new Error("Invalid token");
-
-    const decodedMessage = await jwt.verify(token, "CatchUpSecretJwtKey");
-    const { _id } = decodedMessage;
-
-    const user = await User.findById(_id);
-    if (!user) throw new Error("User not found");
-
+    const user = req.user;
     const userName = user.firstName;
     console.log(`Hello ${userName}`);
     res.send("Get Profile successfully");
