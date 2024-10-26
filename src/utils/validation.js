@@ -1,6 +1,5 @@
 const validator = require("validator");
 const validateSignupData = (req) => {
-  console.log(req.body);
   const { firstName, lastName, emailId, password } = req.body;
 
   if (!firstName || !lastName) {
@@ -16,11 +15,20 @@ const validateSignupData = (req) => {
   }
 };
 
+const validateEditProfileData = (req) => {
+  const allowedEditFileds = ["firstName", "lastName", "gender", "age", "hobbies", "photoUrl"];
+
+  const isValidData = Object.keys(req.body).every((field) => allowedEditFileds.includes(field));
+
+  return isValidData;
+};
+
 const throwError = (errMsg) => {
   throw new Error(errMsg);
 };
 
 module.exports = {
   validateSignupData,
+  validateEditProfileData,
   throwError,
 };
