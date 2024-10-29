@@ -16,10 +16,8 @@
 
 ## connectionRequestRouter
 
-- POST baseApi/request/interested/:userId
-- POST baseApi/request/ignored/:userId
-- POST baseApi/request/accepted/:requestId
-- POST baseApi/request/rejected/:requestId
+- POST baseApi/request/send/:status/:userId
+- POST baseApi/request/review/:status/:requestId
 
 ## userRouter
 
