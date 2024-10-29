@@ -20,10 +20,14 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
 
-    const userConnections = await connectionRequest.find({
-      $or: [{ fromUserId: loggedInUser._id }, { toUSerId: loggedInUser._id }],
-      status: "accepted",
-    });
+    const userConnections = await connectionRequest
+      .find({
+        $or: [
+          { fromUserId: loggedInUser._id, status: "accepted" },
+          { toUserId: loggedInUser._id, status: "accepted" },
+        ],
+      })
+      .populate("fromUserId", ["firstName", "lastName"]);
 
     if (!userConnections) return res.status(400).json({ message: "no connection found" });
 
