@@ -24,7 +24,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
     const toUser = await User.findById({ _id: toUserId });
     if (!toUser) {
       return res.status(400).json({
-        message: `User not found.`,
+        message: "Sending request to unknown user",
       });
     }
 
@@ -37,7 +37,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
 
     if (existingConnectionRequest) {
       return res.status(400).json({
-        message: "Connection alreadt exist",
+        message: "Connection already exist",
       });
     }
 
@@ -45,9 +45,17 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
 
     const data = await connectionRequest.save();
 
-    return res.status(200).json({ message: "Connection request send successfully.", data });
+    return res.status(200).json({
+      message: "Connection request send successfully.",
+      data: {
+        fromUser: loggedInUser.firstName,
+        toUSer: toUser.firstName,
+        fromUserId,
+        toUserId,
+      },
+    });
   } catch (error) {
-    return res.status(400).send("Error: " + error.message);
+    return res.status(400).json({ error: error.message });
   }
 });
 
