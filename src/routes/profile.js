@@ -13,9 +13,11 @@ const bcrypt = require("bcrypt");
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
     const user = req.user;
-    const userName = user.firstName;
-
-    res.send("Hello " + userName);
+    const { firstName, lastName, gender, age, photoUrl, hobbies } = user;
+    return res.json({
+      message: "Success",
+      user: { firstName, lastName, gender, age, photoUrl, hobbies },
+    });
   } catch (error) {
     res.status(400).send(`Error: ${error.message}`);
   }
@@ -54,6 +56,8 @@ profileRouter.patch("/profile/reset-password", userAuth, async (req, res) => {
 profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
+    const isEditableData = validateEditProfileData(req);
+    if (!isEditableData) throwError("Invalid Data");
 
     Object.keys(req.body).forEach((key) => {
       loggedInUser[key] = req.body[key];
