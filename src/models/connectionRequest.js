@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { throwError } = require("../utils/validation");
 
-const connectionRequestSchema = new mongoose.Schema(
+const ConnectionRequestSchema = new mongoose.Schema(
   {
     fromUserId: {
       type: mongoose.Schema.ObjectId,
@@ -29,15 +29,15 @@ const connectionRequestSchema = new mongoose.Schema(
 
 //Compound index so query with find becomes very fast....
 
-connectionRequestSchema.index({ fromUserId: 1 }, { toUserId: 1 });
+ConnectionRequestSchema.index({ fromUserId: 1 }, { toUserId: 1 });
 
-connectionRequestSchema.pre("save", function (next) {
-  const connectionRequest = this;
-  const requestToSelf = connectionRequest.fromUserId.equals(connectionRequest.toUserId);
+ConnectionRequestSchema.pre("save", function (next) {
+  const ConnectionRequest = this;
+  const requestToSelf = ConnectionRequest.fromUserId.equals(ConnectionRequest.toUserId);
   if (requestToSelf) {
-    throw new Error("You can't send connection to yourself");
+    throw new Error("You can't send connection request to yourself");
   }
   next();
 });
 
-module.exports = new mongoose.model("ConnectionRequest", connectionRequestSchema);
+module.exports = new mongoose.model("ConnectionRequest", ConnectionRequestSchema);
