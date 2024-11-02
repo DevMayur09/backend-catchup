@@ -6,7 +6,7 @@ const { userAuth } = require("../middlewares/auth");
 const { throwError } = require("../utils/validation");
 const ConnectionRequest = require("../models/connectionRequest");
 
-// POST send request that could be interested or ignored.
+// POST send request that could be either interested or ignored.
 requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
@@ -52,6 +52,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
         toUSer: toUser.firstName,
         fromUserId,
         toUserId,
+        status,
       },
     });
   } catch (error) {
@@ -59,6 +60,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
   }
 });
 
+// POST review request that could be either accepted or rejected.
 requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
@@ -81,16 +83,28 @@ requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, r
     if (!connectionRequest)
       return res.status(404).json({ message: "connection request not found" });
 
+    const { fromUserId } = connectionRequest;
+    const fromUser = await User.findById({ _id: fromUserId });
+
+    const { firstName } = fromUser;
     connectionRequest.status = status;
 
-    const data = await connectionRequest.save({});
-    return res.json({ message: "connection reviewed success !!", data });
+    const data = await connectionRequest.save();
+
+    return res.json({
+      message: `You have ${status} connection request`,
+      data: {
+        fromUser: firstName,
+        toUser: loggedInUser.firstName,
+        status: status,
+      },
+    });
   } catch (error) {
-    res.status(400).send("Something went wrong...");
+    res.status(400).json({ error: error.message });
   }
 });
 
-// GET /feed for gettings feeds
+// GET /feed for gettings feeds of users
 requestRouter.get("/feeds", userAuth, async (req, res) => {
   try {
     const users = await User.find();

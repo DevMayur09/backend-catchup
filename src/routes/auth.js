@@ -34,7 +34,7 @@ authRouter.post("/login", async (req, res) => {
     const { emailId, password } = req.body;
 
     const user = await User.findOne({ emailId: emailId });
-
+    const { firstName, lastName, hobbies, gender, photoUrl, age } = user;
     if (!user) throwError("Invalid credentials");
 
     const isPassowordValid = await user.validatePassword(password);
@@ -44,12 +44,15 @@ authRouter.post("/login", async (req, res) => {
 
       res.cookie("token", token);
 
-      res.send("login Successful.");
+      res.status(200).json({
+        message: "Success",
+        user: { firstName, lastName, hobbies, gender, photoUrl, age },
+      });
     } else {
-      throwError("Invalid credentials pass");
+      throwError("Invalid credentials");
     }
   } catch (error) {
-    res.status(400).send("Error: " + error);
+    res.status(400).send(error.message);
   }
 });
 
