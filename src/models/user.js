@@ -28,7 +28,6 @@ const userSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      min: 18,
     },
     gender: {
       type: String,
@@ -40,6 +39,7 @@ const userSchema = new mongoose.Schema(
       },
     },
     hobbies: { type: [String] },
+    about: { type: String, default: "", max: 300 },
     photoUrl: {
       type: String,
       default: "https://images.app.goo.gl/jtf2s5N8Sxip67VcA",
