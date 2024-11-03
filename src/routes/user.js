@@ -4,7 +4,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
 const userRouter = express.Router();
-const USER_SAFE_DATA = "firstName lastName gender age photoUrl hobbies";
+const USER_SAFE_DATA = "firstName lastName gender age photoUrl hobbies about";
 
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   try {
@@ -68,6 +68,7 @@ userRouter.get("/user/feeds", userAuth, async (req, res) => {
     }).select("fromUserId toUserId");
 
     const hideUserFromFeed = new Set();
+
     connectionRequest.forEach((request) => {
       hideUserFromFeed.add(request.fromUserId.toString());
       hideUserFromFeed.add(request.toUserId.toString());
